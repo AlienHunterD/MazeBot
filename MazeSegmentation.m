@@ -2,16 +2,16 @@ clear all;
 close all;
 
 % Capture the maze image.
-%cam = webcam(3);
-%raw = snapshot(cam);
-raw = imread('maze1.png');
+cam = webcam(3);
+raw = snapshot(cam);
+%raw = imread('maze1.png');
 img = rgb2gray(raw); % Conver to grayscale
 binary = imbinarize(img,'adaptive','ForegroundPolarity','dark','Sensitivity',0.45); % Threshold to binary
 dilated = imerode(binary, ones(15)); % Dilate to smooth the walls and move us to the middle 
 
 maze_mask = imfill(~dilated, 'holes'); % Find the maze area
 maze = dilated & maze_mask; % Eliminate anything outside it
-maze = imerode(maze, ones(40));
+maze = imerode(maze, ones(15));
 
 imshow(maze); % Let's see
 waitforbuttonpress;
@@ -49,7 +49,11 @@ while back > front % keep looping as long as there are more points to visit
     
     front = front + 1; % move to the next position
 end
- 
+
+if numel(start) > 2
+    start = start(1, :)
+end
+
 % Now find the path to the goal from the start by greedy approach
 path = zeros(dist(start(1), start(2))+1, 2); % follow a path back to the start
 path(1, :) = start;
